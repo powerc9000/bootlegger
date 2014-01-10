@@ -465,7 +465,6 @@ module.exports = (function(window, undefined){
 				if(rotation){
 					ctx.translate((x - camera.position.x)/camera.zoomAmt ,(y - camera.position.y)/camera.zoomAmt);
 					ctx.rotate(rotation);
-					console.log("rotate")
 					ctx.rect(0, 0 , width / camera.zoomAmt, height / camera.zoomAmt);
 				}
 				else{
