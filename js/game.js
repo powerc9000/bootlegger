@@ -21,13 +21,13 @@ $h.render(function(){
 	for(var i=0; i<200; i++){
 		canvas.drawRect(50, 50, 200+i, i*49, "grey");
 	}
-	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2, {x:player.width/2, y:player.height-10});
+	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2, {x:player.width/2, y:10});
 	canvas.drawRect(20,20, 20, 20, "green")
 });
 
 $h.update(function(delta){
 	var proj = camera.unproject($h.Vector(player.x, player.y))
-	player.angle = Math.atan2($h.mousePos.y - proj.y, $h.mousePos.x - proj.x);
+	player.angle = Math.atan2($h.mousePos.y - proj.y + 10, $h.mousePos.x - proj.x +player.width/2);
 	if(keys.up){
 		player.speed += 50 * delta/1000
 	}else if(keys.down){
