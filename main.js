@@ -6,8 +6,8 @@ var canvas;
 var player = {
 	x:200,
 	y:200,
-	width:10,
-	height:100,
+	width:20,
+	height:50,
 	speed:0
 }
 var keys = {}
@@ -19,6 +19,9 @@ canvas.append("body");
 
 $h.render(function(){
 	canvas.clear();
+	for(var i=0; i<200; i++){
+		canvas.drawRect(50, 50, 200+i, i*49, "grey");
+	}
 	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2);
 	canvas.drawRect(20,20, 20, 20, "green")
 });
@@ -27,11 +30,9 @@ $h.update(function(delta){
 	var proj = camera.unproject($h.Vector(player.x, player.y))
 	player.angle = Math.atan2($h.mousePos.y - proj.y, $h.mousePos.x - proj.x);
 	if(keys.up){
-		player.speed += 20 * delta/1000
-		console.log("up")
+		player.speed += 50 * delta/1000
 	}else if(keys.down){
-		console.log("down")
-		player.speed -= 20 * delta/1000
+		player.speed -= 200 * delta/1000
 	}
 	player.x += player.speed * Math.cos(player.angle) * delta / 1000
 	player.y += player.speed * Math.sin(player.angle) * delta / 1000
