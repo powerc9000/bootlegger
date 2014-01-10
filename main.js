@@ -22,7 +22,7 @@ $h.render(function(){
 	for(var i=0; i<200; i++){
 		canvas.drawRect(50, 50, 200+i, i*49, "grey");
 	}
-	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2);
+	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2, {x:player.width/2, y:10});
 	canvas.drawRect(20,20, 20, 20, "green")
 });
 
@@ -525,15 +525,17 @@ module.exports = (function(window, undefined){
 				}
 				ctx.restore();
 			},
-			drawRect: function(width, height, x, y, color, stroke, rotation){
+			drawRect: function(width, height, x, y, color, stroke, rotation, center_of_rotation){
 				var ctx = this.canvas.ctx, mod = 1, camera = this.canvas.camera;
 				ctx.save();
 				ctx.beginPath();
 
 				if(rotation){
-					ctx.translate((x - camera.position.x)/camera.zoomAmt ,(y - camera.position.y)/camera.zoomAmt);
+					center_of_rotation = center_of_rotation || {x:0,y:0};
+					console.log(center_of_rotation)
+					ctx.translate((x + center_of_rotation.x- camera.position.x)/camera.zoomAmt ,(y + center_of_rotation.y- camera.position.y)/camera.zoomAmt);
 					ctx.rotate(rotation);
-					ctx.rect(0, 0 , width / camera.zoomAmt, height / camera.zoomAmt);
+					ctx.rect(0 - center_of_rotation.x, 0 - center_of_rotation.y , width / camera.zoomAmt, height / camera.zoomAmt);
 				}
 				else{
 					//console.log(camera.position.x)

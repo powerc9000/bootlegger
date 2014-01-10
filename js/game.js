@@ -21,7 +21,7 @@ $h.render(function(){
 	for(var i=0; i<200; i++){
 		canvas.drawRect(50, 50, 200+i, i*49, "grey");
 	}
-	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2);
+	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2, {x:player.width/2, y:10});
 	canvas.drawRect(20,20, 20, 20, "green")
 });
 
