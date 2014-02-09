@@ -1,42 +1,48 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $h = require("./head-on")
-var player = require("./player")($h);
-var camera = new $h.Camera(500, 500);
-var canvas;
-var player = {
-	x:200,
-	y:200,
-	width:20,
-	height:50,
-	speed:0
-}
-var keys = {}
+var $h = require("./head-on");
+module.exports = (function(){
+	function Car(x,y){
+		this.position = $h.Vector(x||0, y||0);
+		return this;
+	}
+	Car.prototype = {
+		update: function(){
+			return this.message;
+		},
+		position: $h.Vector(0,0),
+		angle:0,
+		width:50,
+		height:100,
+		speed:0
+	}
+	return Car;
+}())
+},{"./head-on":3}],2:[function(require,module,exports){
+var $h = require("./head-on"),
+	Player = require("./player"),
+	camera = new $h.Camera(500, 500),
+	canvas,
+	player;
+player = new Player(200, 200); 
 $h.mousePos = {y:0, x:0}
-console.log()
+$h.gamestate = {};
+$h.gamestate.camera = camera;
 $h.canvas.create("main", 500, 500, camera);
 canvas = $h.canvas("main");
 canvas.append("body"); 
-
+$h.keys = {};
 $h.render(function(){
 	canvas.clear();
 	for(var i=0; i<200; i++){
 		canvas.drawRect(50, 50, 200+i, i*49, "grey");
 	}
-	canvas.drawRect(player.width, player.height, player.x, player.y, "black", {}, player.angle - Math.PI/2, {x:player.width/2, y:player.height-10});
+	player.render(canvas);
+	
 	canvas.drawRect(20,20, 20, 20, "green")
 });
 
 $h.update(function(delta){
-	var proj = camera.unproject($h.Vector(player.x, player.y))
-	player.angle = Math.atan2($h.mousePos.y - proj.y, $h.mousePos.x - proj.x);
-	if(keys.up){
-		player.speed += 50 * delta/1000
-	}else if(keys.down){
-		player.speed -= 200 * delta/1000
-	}
-	player.x += player.speed * Math.cos(player.angle) * delta / 1000
-	player.y += player.speed * Math.sin(player.angle) * delta / 1000
-	camera.moveTo($h.Vector(player.x, player.y))
+	player.update(delta);
 });
 $h.run()
 canvas.canvas.canvas.addEventListener("mousemove", function(e){
@@ -50,7 +56,7 @@ window.addEventListener("keydown", function(e){
 		39:"right",
 		40:"down"
 	}
-	keys[keyMap[e.which]] = true;
+	$h.keys[keyMap[e.which]] = true;
 });
 window.addEventListener("keyup", function(e){
 	var keyMap = {
@@ -59,13 +65,13 @@ window.addEventListener("keyup", function(e){
 		39:"right",
 		40:"down"
 	}
-	keys[keyMap[e.which]] = false;
+	$h.keys[keyMap[e.which]] = false;
 });
 console.log(player);
 console.log($h);
 
 
-},{"./head-on":2,"./player":3}],2:[function(require,module,exports){
+},{"./head-on":3,"./player":4}],3:[function(require,module,exports){
 //	   __  __			    __					 _	
 //	  / / / /__  ____ _____/ /	____  ____	       (_)____
 //   / /_/ / _ \/ __ `/ __  /_____/ __ \/ __ \	  / / ___/
@@ -171,6 +177,31 @@ module.exports = (function(window, undefined){
 					}
 					return o;
 				},
+
+				inherit: function (base, sub) {
+					// Avoid instantiating the base class just to setup inheritance
+					// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+					// for a polyfill
+					sub.prototype = Object.create(base.prototype);
+					// Remember the constructor property was set wrong, let's fix it
+					sub.prototype.constructor = sub;
+					// In ECMAScript5+ (all modern browsers), you can make the constructor property
+					// non-enumerable if you define it like this instead
+					Object.defineProperty(sub.prototype, 'constructor', { 
+						enumerable: false, 
+						value: sub 
+					});
+				},
+
+				extend: function(base, values){
+					var i;
+					for(i in values){
+						if(values.hasOwnProperty(i)){
+							base[i] = values[i];
+						}
+					}
+				},
+				
 				collides: function(poly1, poly2) {
 					var points1 = this.getPoints(poly1),
 						points2 = this.getPoints(poly2),
@@ -532,7 +563,6 @@ module.exports = (function(window, undefined){
 
 				if(rotation){
 					center_of_rotation = center_of_rotation || {x:0,y:0};
-					console.log(center_of_rotation)
 					ctx.translate((x + center_of_rotation.x- camera.position.x)/camera.zoomAmt ,(y + center_of_rotation.y- camera.position.y)/camera.zoomAmt);
 					ctx.rotate(rotation);
 					ctx.rect(0 - center_of_rotation.x, 0 - center_of_rotation.y , width / camera.zoomAmt, height / camera.zoomAmt);
@@ -727,10 +757,45 @@ module.exports = (function(window, undefined){
 			return Object.keys(obj).length === 0;
 		}
 	}());
+	//window.headOn = headOn;
 	return headOn;
 }(window));
-},{}],3:[function(require,module,exports){
-module.exports = function($h){
-	return "hey"
-}
-},{}]},{},[1])
+},{}],4:[function(require,module,exports){
+var Car = require("./car");
+var $h = require("./head-on");
+module.exports = (function(){
+	//console.log(headOn)
+	function Player(x,y){
+		Car.call(this, x,y);
+	}
+
+	$h.inherit(Car, Player);
+	
+	$h.extend(Player.prototype, {
+		render: function(canvas){
+			canvas.drawRect(this.width, 
+				this.height, 
+				this.position.x, 
+				this.position.y, 
+				"black", {}, 
+				this.angle - Math.PI/2, 
+				{x:this.width/2, y:10}
+				);
+		},
+		update: function(delta){
+			var camera = $h.gamestate.camera;
+			var proj = camera.unproject($h.Vector(this.position.x, this.position.y))
+			this.angle = Math.atan2($h.mousePos.y - proj.y + 10, $h.mousePos.x - proj.x +this.width/2);
+			if($h.keys.up){
+				this.speed += 50 * delta/1000
+			}else if($h.keys.down){
+				this.speed -= 200 * delta/1000
+			}
+			this.position.x += this.speed * Math.cos(this.angle) * delta / 1000
+			this.position.y += this.speed * Math.sin(this.angle) * delta / 1000
+			camera.moveTo($h.Vector(this.position.x, this.position.y))
+		}
+	});
+	return Player;
+}())
+},{"./car":1,"./head-on":3}]},{},[2])

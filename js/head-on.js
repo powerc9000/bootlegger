@@ -103,6 +103,31 @@ module.exports = (function(window, undefined){
 					}
 					return o;
 				},
+
+				inherit: function (base, sub) {
+					// Avoid instantiating the base class just to setup inheritance
+					// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+					// for a polyfill
+					sub.prototype = Object.create(base.prototype);
+					// Remember the constructor property was set wrong, let's fix it
+					sub.prototype.constructor = sub;
+					// In ECMAScript5+ (all modern browsers), you can make the constructor property
+					// non-enumerable if you define it like this instead
+					Object.defineProperty(sub.prototype, 'constructor', { 
+						enumerable: false, 
+						value: sub 
+					});
+				},
+
+				extend: function(base, values){
+					var i;
+					for(i in values){
+						if(values.hasOwnProperty(i)){
+							base[i] = values[i];
+						}
+					}
+				},
+				
 				collides: function(poly1, poly2) {
 					var points1 = this.getPoints(poly1),
 						points2 = this.getPoints(poly2),
@@ -464,7 +489,6 @@ module.exports = (function(window, undefined){
 
 				if(rotation){
 					center_of_rotation = center_of_rotation || {x:0,y:0};
-					console.log(center_of_rotation)
 					ctx.translate((x + center_of_rotation.x- camera.position.x)/camera.zoomAmt ,(y + center_of_rotation.y- camera.position.y)/camera.zoomAmt);
 					ctx.rotate(rotation);
 					ctx.rect(0 - center_of_rotation.x, 0 - center_of_rotation.y , width / camera.zoomAmt, height / camera.zoomAmt);
@@ -659,5 +683,6 @@ module.exports = (function(window, undefined){
 			return Object.keys(obj).length === 0;
 		}
 	}());
+	//window.headOn = headOn;
 	return headOn;
 }(window));
