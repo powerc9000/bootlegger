@@ -1,6 +1,13 @@
 var $h = require("./head-on"),
 	Player = require("./player"),
 	camera = new $h.Camera(500, 500),
+	keyMap = {
+		37:"left",
+		38:"up",
+		39:"right",
+		40:"down",
+		32: "space"
+	},
 	canvas,
 	player;
 player = new Player(200, 200); 
@@ -30,21 +37,10 @@ canvas.canvas.canvas.addEventListener("mousemove", function(e){
 	$h.mousePos = {x:e.pageX - bounds.left, y: e.pageY - bounds.top};
 });
 window.addEventListener("keydown", function(e){
-	var keyMap = {
-		37:"left",
-		38:"up",
-		39:"right",
-		40:"down"
-	}
+	
 	$h.keys[keyMap[e.which]] = true;
 });
 window.addEventListener("keyup", function(e){
-	var keyMap = {
-		37:"left",
-		38:"up",
-		39:"right",
-		40:"down"
-	}
 	$h.keys[keyMap[e.which]] = false;
 });
 console.log(player);
