@@ -1,4 +1,43 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Car = require("./car");
+var $h = require("./head-on.js");
+module.exports = (function(){
+	function NPC(x,y){
+		Car.call(this, x,y);
+	}
+	$h.inherit(Car, NPC);
+	$h.extend(NPC.prototype, {
+		update: function(delta){
+			this.speed = this.v.length();
+			if(this.angle !== this.angleToPlayer()){
+				console.log("yes");
+				if(this.angle - this.angleToPlayer() < 0){
+					this.rotation = this.maxRotation;
+				}else{
+					this.rotation = -this.maxRotation;
+				}
+				this.angle += this.rotation * delta/1000;
+				console.log(this.rotation);
+			}
+			if(this.speed > $h.gamestate.player.speed){
+				this.brake();
+			}else{
+				this.a = 1000;
+			}
+			this.speed += this.a * delta/1000;
+			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed)
+			this.position = this.position.add(this.v.mul(delta/1000));
+			this.rotation = 0;
+		},
+		angleToPlayer: function(){
+			return $h.gamestate.player.angle;
+			//console.log(angle);
+			return angle;
+		}
+	})
+	return NPC;
+}())
+},{"./car":2,"./head-on.js":4}],2:[function(require,module,exports){
 var $h = require("./head-on");
 module.exports = (function(){
 	function Car(x,y){
@@ -6,20 +45,45 @@ module.exports = (function(){
 		return this;
 	}
 	Car.prototype = {
-		update: function(){
-			return this.message;
-		},
+		
 		position: $h.Vector(0,0),
 		angle:0,
 		width:50,
 		height:100,
-		speed:0
+		speed:0,
+		a:0,
+		maxRotation:2,
+		rotation:0,
+		speed:0,
+		color:"blue",
+		v: $h.Vector(0,0),
+		update: function(time){
+			return this.message;
+		},
+		brake: function(mul){
+			mul = mul || .93;
+			this.a = 0;
+			this.speed *= mul;
+		},
+		render:function(canvas){
+			canvas.drawRect(this.width, 
+				this.height, 
+				this.position.x, 
+				this.position.y, 
+				this.color, {}, 
+				this.angle - Math.PI/2, 
+				{x:this.width/2, y:10}
+				);
+		}
+		
+
 	}
 	return Car;
 }())
-},{"./head-on":3}],2:[function(require,module,exports){
+},{"./head-on":4}],3:[function(require,module,exports){
 var $h = require("./head-on"),
 	Player = require("./player"),
+	NPC = require("./NPC"),
 	camera = new $h.Camera(500, 500),
 	keyMap = {
 		37:"left",
@@ -29,11 +93,14 @@ var $h = require("./head-on"),
 		32: "space"
 	},
 	canvas,
-	player;
+	player,
+	npc;
 player = new Player(200, 200); 
+npc = new NPC(200, 400);
 $h.mousePos = {y:0, x:0}
 $h.gamestate = {};
 $h.gamestate.camera = camera;
+$h.gamestate.player = player;
 $h.canvas.create("main", 500, 500, camera);
 canvas = $h.canvas("main");
 canvas.append("body"); 
@@ -44,12 +111,13 @@ $h.render(function(){
 		canvas.drawRect(50, 50, 200+i, i*49, "grey");
 	}
 	player.render(canvas);
-	
+	npc.render(canvas);
 	canvas.drawRect(20,20, 20, 20, "green")
 });
 
 $h.update(function(delta){
 	player.update(delta);
+	npc.update(delta);
 });
 $h.run()
 canvas.canvas.canvas.addEventListener("mousemove", function(e){
@@ -67,7 +135,7 @@ console.log(player);
 console.log($h);
 
 
-},{"./head-on":3,"./player":4}],3:[function(require,module,exports){
+},{"./NPC":1,"./head-on":4,"./player":5}],4:[function(require,module,exports){
 //	   __  __			    __					 _	
 //	  / / / /__  ____ _____/ /	____  ____	       (_)____
 //   / /_/ / _ \/ __ `/ __  /_____/ __ \/ __ \	  / / ___/
@@ -756,7 +824,7 @@ module.exports = (function(window, undefined){
 	//window.headOn = headOn;
 	return headOn;
 }(window));
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var Car = require("./car");
 var $h = require("./head-on");
 module.exports = (function(){
@@ -768,21 +836,8 @@ module.exports = (function(){
 	$h.inherit(Car, Player);
 	
 	$h.extend(Player.prototype, {
-		render: function(canvas){
-			canvas.drawRect(this.width, 
-				this.height, 
-				this.position.x, 
-				this.position.y, 
-				"black", {}, 
-				this.angle - Math.PI/2, 
-				{x:this.width/2, y:10}
-				);
-		},
-		v: $h.Vector(0,0),
-		a:0,
-		maxRotation:2,
-		rotation:0,
-		speed:0,
+		
+		color:"black",
 		topSpeed:1000,
 		reverse:1,
 		update: function(delta){
@@ -791,20 +846,24 @@ module.exports = (function(){
 			if(this.speed > this.topSpeed){
 				this.speed = this.topSpeed;
 			}
-			if(Math.abs(this.speed) < 0.5){
+			if(Math.abs(this.speed) < 1.5){
 				this.speed = 0;
 			}
 			if($h.keys.up){
 				if(this.speed === 0){
 					this.reverse *= -1;
 				}
-				
 				this.a = 200
+				
 			}else if($h.keys.down){
 				if(this.speed === 0){
 					this.reverse *= -1;
+					this.a = -200
 				}
-				this.a = -200
+				else if(this.reverse !== -1){
+					this.brake();
+				}
+				
 			}else{
 				this.a = 0;
 			}
@@ -817,20 +876,25 @@ module.exports = (function(){
 				this.rotation = 0;
 			}
 			if($h.keys.space){
-				this.a = 500 * -this.reverse;
+				this.brake();
 			}
 			
 			this.angle += this.rotation * delta/1000;
 			this.speed *= this.reverse;
 			this.speed += this.a * delta/1000;
+			//Friction from the road.
+			if(!this.a){
+				this.speed *= .99;
+			}
+			
 			//this.a = this.a.mul(.9)
 			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed)
 			this.position = this.position.add(this.v.mul(delta/1000));
 			camera.moveTo(this.position);
 			
-			console.log(this.reverse);
+			//console.log(this.speed, this.a);
 		}
 	});
 	return Player;
 }())
-},{"./car":1,"./head-on":3}]},{},[2])
+},{"./car":2,"./head-on":4}]},{},[3])

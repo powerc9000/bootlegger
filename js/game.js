@@ -1,5 +1,6 @@
 var $h = require("./head-on"),
 	Player = require("./player"),
+	NPC = require("./NPC"),
 	camera = new $h.Camera(500, 500),
 	keyMap = {
 		37:"left",
@@ -9,11 +10,14 @@ var $h = require("./head-on"),
 		32: "space"
 	},
 	canvas,
-	player;
+	player,
+	npc;
 player = new Player(200, 200); 
+npc = new NPC(200, 400);
 $h.mousePos = {y:0, x:0}
 $h.gamestate = {};
 $h.gamestate.camera = camera;
+$h.gamestate.player = player;
 $h.canvas.create("main", 500, 500, camera);
 canvas = $h.canvas("main");
 canvas.append("body"); 
@@ -24,12 +28,13 @@ $h.render(function(){
 		canvas.drawRect(50, 50, 200+i, i*49, "grey");
 	}
 	player.render(canvas);
-	
+	npc.render(canvas);
 	canvas.drawRect(20,20, 20, 20, "green")
 });
 
 $h.update(function(delta){
 	player.update(delta);
+	npc.update(delta);
 });
 $h.run()
 canvas.canvas.canvas.addEventListener("mousemove", function(e){
