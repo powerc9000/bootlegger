@@ -11,10 +11,8 @@ module.exports = (function(){
 		maxRotation: 20,
 		mass:200,
 		update: function(delta){
-			steering = this.seek($h.gamestate.player.position)
-			// if(steering.length() > 20){
-			// 	steering.nor
-			// }
+			steering = this.seek($h.gamestate.player.position);
+			//steering.truncate(20);
 			steering = steering.mul(1/this.mass);
 			this.v = this.v.add(steering);
 			this.v.truncate(this.topSpeed);
@@ -35,13 +33,13 @@ module.exports = (function(){
 		pursuit: function(obj){
 			return seek(obj.position.add(obj.v).mul(3));
 		}
-	})
+	});
 	return NPC;
-}())
+}());
 },{"./car":2,"./head-on.js":4}],2:[function(require,module,exports){
 var $h = require("./head-on");
 module.exports = (function(){
-	"use strict"
+	"use strict";
 	function Car(x,y){
 		this.position = $h.Vector(x||0, y||0);
 		return this;
@@ -62,7 +60,7 @@ module.exports = (function(){
 			//return this.message;
 		},
 		brake: function(mul){
-			mul = mul || .93;
+			mul = mul || 0.93;
 			this.a = 0;
 			this.speed *= mul;
 		},
@@ -78,9 +76,9 @@ module.exports = (function(){
 		}
 		
 
-	}
+	};
 	return Car;
-}())
+}());
 },{"./head-on":4}],3:[function(require,module,exports){
 var $h = require("./head-on"),
 	Player = require("./player"),
@@ -98,7 +96,7 @@ var $h = require("./head-on"),
 	npc;
 player = new Player(200, 200); 
 npc = new NPC(200, 400);
-$h.mousePos = {y:0, x:0}
+$h.mousePos = {y:0, x:0};
 $h.gamestate = {};
 $h.gamestate.camera = camera;
 $h.gamestate.player = player;
@@ -113,14 +111,14 @@ $h.render(function(){
 	}
 	player.render(canvas);
 	npc.render(canvas);
-	canvas.drawRect(20,20, 20, 20, "green")
+	canvas.drawRect(20,20, 20, 20, "green");
 });
 
 $h.update(function(delta){
 	player.update(delta);
 	npc.update(delta);
 });
-$h.run()
+$h.run();
 canvas.canvas.canvas.addEventListener("mousemove", function(e){
 	var bounds = canvas.canvas.canvas.getBoundingClientRect();
 	$h.mousePos = {x:e.pageX - bounds.left, y: e.pageY - bounds.top};
@@ -137,12 +135,7 @@ console.log($h);
 
 
 },{"./NPC":1,"./head-on":4,"./player":5}],4:[function(require,module,exports){
-//	   __  __			    __					 _	
-//	  / / / /__  ____ _____/ /	____  ____	       (_)____
-//   / /_/ / _ \/ __ `/ __  /_____/ __ \/ __ \	  / / ___/
-//  / __  /  __/ /_/ / /_/ /_____/ /_/ / / / /   / (__  ) 
-// /_/ /_/\___/\__,_/\__,_/	     \____/_/ /_(_)_/ /____/  
-//										     /___/		
+
 module.exports = (function(window, undefined){
 	"use strict";
 	var headOn = (function(){
@@ -162,7 +155,7 @@ module.exports = (function(window, undefined){
 					return Math.floor(Math.random() * (max +1 - min)) + min;
 				},
 				randFloat: function(min, max) {
-					return Math.random() * (max - min) + min
+					return Math.random() * (max - min) + min;
 				},
 				events: {
 					events: {},
@@ -223,9 +216,9 @@ module.exports = (function(window, undefined){
 					
 				},
 
-				update: function(cb){this._update = cb},
+				update: function(cb){this._update = cb;},
 
-				render: function(cb){this._render = cb},
+				render: function(cb){this._render = cb;},
 
 				entity: function(values, parent){
 					var i, o, base;
@@ -267,7 +260,7 @@ module.exports = (function(window, undefined){
 					}
 				},
 				distance: function(obj1, obj2){
-					return Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2))
+					return Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2));
 				},
 				collides: function(poly1, poly2) {
 					var points1 = this.getPoints(poly1),
@@ -424,24 +417,24 @@ module.exports = (function(window, undefined){
 						var circleDistance = {x:newX, y:newY};
 						var cornerDistance_sq;
 						circleDistance.x = Math.abs(circle.position.x - rect.position.x);
-					    circleDistance.y = Math.abs(circle.position.y - rect.position.y);
+						circleDistance.y = Math.abs(circle.position.y - rect.position.y);
 
-					    if (circleDistance.x > (rect.width/2 + circle.radius)) { return false; }
-					    if (circleDistance.y > (rect.height/2 + circle.radius)) { return false; }
+						if (circleDistance.x > (rect.width/2 + circle.radius)) { return false; }
+						if (circleDistance.y > (rect.height/2 + circle.radius)) { return false; }
 
-					    if (circleDistance.x <= (rect.width/2)) { return true; } 
-					    if (circleDistance.y <= (rect.height/2)) { return true; }
+						if (circleDistance.x <= (rect.width/2)) { return true; } 
+						if (circleDistance.y <= (rect.height/2)) { return true; }
 
-					    cornerDistance_sq = Math.pow(circleDistance.x - rect.width/2,2) +
-					                         Math.pow(circleDistance.y - rect.height/2, 2);
+						cornerDistance_sq = Math.pow(circleDistance.x - rect.width/2,2) +
+											Math.pow(circleDistance.y - rect.height/2, 2);
 
-					    return (cornerDistance_sq <= Math.pow(circle.radius,2));
+						return (cornerDistance_sq <= Math.pow(circle.radius,2));
 					}
 					function pointInCircle(point, circle){
-						Math.pow(point.x - circle.position.x ,2) + Math.pow(point.y - circle.position.y, 2) < Math.pow(circle.radius,2);
+						return Math.pow(point.x - circle.position.x ,2) + Math.pow(point.y - circle.position.y, 2) < Math.pow(circle.radius,2);
 					}
 					function circleCircle(ob1, ob2){
-						square(ob2.position.x - ob1.position.x) + square(ob2.position.y - ob1.position.y) <= square(ob1.radius + ob2.radius)
+						return square(ob2.position.x - ob1.position.x) + square(ob2.position.y - ob1.position.y) <= square(ob1.radius + ob2.radius);
 					}
 				},
 
@@ -517,11 +510,11 @@ module.exports = (function(window, undefined){
 							allCallback && allCallback();
 							that.imagesLoaded = true;
 						}
-					}
+					};
 					imageArray.forEach(function(image){
 						img = new Image();
 						img.src = image.src;
-						img.onload = imgOnload
+						img.onload = imgOnload;
 					
 						that._images[image.name] = img;
 					});
@@ -537,7 +530,7 @@ module.exports = (function(window, undefined){
 				onTick: function(then){
 					var now = Date.now(),
 					modifier = now - then;
-				  	this.trueFps = 1/(modifier/1000);
+					this.trueFps = 1/(modifier/1000);
 					this._ticks+=1;
 					this._update(modifier, this._ticks);
 					this._render(modifier, this._ticks);
@@ -548,7 +541,7 @@ module.exports = (function(window, undefined){
 				timeout: function(cb, time, scope){
 					setTimeout(function(){
 						cb.call(scope);
-					}, time)
+					}, time);
 				},
 
 				interval: function(cb, time, scope){
@@ -589,8 +582,8 @@ module.exports = (function(window, undefined){
 					this.message = message;
 					this.name = "Head-on Exception";
 					this.toString = function(){
-						return this.name + ": " + this.message
-					}
+						return this.name + ": " + this.message;
+					};
 				}
 		};
 
@@ -610,7 +603,7 @@ module.exports = (function(window, undefined){
 				height: canvas.height,
 				camera: camera
 			};
-		}
+		};
 		headOn.canvas.prototype = {
 			canvases: {},
 			stroke: function(stroke){
@@ -719,12 +712,12 @@ module.exports = (function(window, undefined){
 			},
 			clear: function(){
 				var ctx = this.canvas.ctx;
-				ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
+				ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
 			},
 			setCamera: function(cam){
 				this.canvas.camera = cam;
 			}
-		}
+		};
 		headOn.Timer.prototype = {
 			job: function(time, start){
 				var jiff = {
@@ -742,18 +735,18 @@ module.exports = (function(window, undefined){
 					timeLeft: function(){
 						return jiff.remaining;
 					}
-				}
+				};
 			},
 			update: function(time){
 				this.jobs.forEach(function(j){
 					j.remaining -= time;
 				});
 			}
-		}
+		};
 		headOn.Camera.prototype = {
 			zoomIn: function(amt){
 				this.zoomAmt /= amt;
-				this.position = this.center.sub(this.dimensions.mul(this.zoomAmt / 2))
+				this.position = this.center.sub(this.dimensions.mul(this.zoomAmt / 2));
 				return this;
 			},
 			zoomOut: function(amt){
@@ -764,17 +757,17 @@ module.exports = (function(window, undefined){
 			},
 			move: function(vec){
 				this.position = this.position.add(vec);
-				this.center = this.position.add(headOn.Vector(this.width, this.height).mul(.5));
+				this.center = this.position.add(headOn.Vector(this.width, this.height).mul(0.5));
 				return this;
 			},
 			moveTo: function(vec){
-				this.position = vec.sub(this.dimensions.mul(.5).mul(this.zoomAmt));
+				this.position = vec.sub(this.dimensions.mul(0.5).mul(this.zoomAmt));
 				this.center = vec;
 			},
 			unproject: function(vec){
 				return vec.sub(this.position).mul(1/this.zoomAmt);
 			}
-		}
+		};
 		vectorProto = {
 			normalize: function(){
 				var len = this.length();
@@ -811,7 +804,7 @@ module.exports = (function(window, undefined){
 			mul: function(scalar){
 				return headOn.Vector(this.x * scalar, this.y * scalar);
 			}
-		}
+		};
 		function sign(num){
 			if(num < 0){
 				return -1;
@@ -850,6 +843,7 @@ module.exports = (function(){
 		reverse:1,
 		update: function(delta){
 			var camera = $h.gamestate.camera;
+			var rotationMul;
 			this.speed = this.v.length();
 			if(this.speed > this.topSpeed){
 				this.speed = this.topSpeed;
@@ -861,12 +855,12 @@ module.exports = (function(){
 				if(this.speed === 0){
 					this.reverse *= -1;
 				}
-				this.a = 200
+				this.a = 200;
 				
 			}else if($h.keys.down){
 				if(this.speed === 0){
 					this.reverse *= -1;
-					this.a = -200
+					this.a = -200;
 				}
 				else if(this.reverse !== -1){
 					this.brake();
@@ -875,28 +869,37 @@ module.exports = (function(){
 			}else{
 				this.a = 0;
 			}
+
+			rotationMul = (this.speed === 0 ) ? this.speed : 500/this.speed;
 			if($h.keys.right){
-				this.rotation = this.maxRotation ;
+				this.rotation = this.maxRotation * rotationMul;
 			}
 			else if($h.keys.left){
-				this.rotation = -this.maxRotation ;
+				this.rotation = -this.maxRotation * rotationMul;
 			}else{
 				this.rotation = 0;
 			}
 			if($h.keys.space){
 				this.brake();
 			}
-			
+			if(Math.abs(this.rotation) > this.maxRotation){
+				if(this.rotation > 0){
+					this.rotation = this.maxRotation;
+				}else{
+					this.rotation = -this.maxRotation;
+				}
+				
+			}
 			this.angle += this.rotation * delta/1000;
 			this.speed *= this.reverse;
 			this.speed += this.a * delta/1000;
 			//Friction from the road.
 			if(!this.a){
-				this.speed *= .99;
+				this.speed *= 0.99;
 			}
 			
 			//this.a = this.a.mul(.9)
-			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed)
+			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed);
 			this.position = this.position.add(this.v.mul(delta/1000));
 			camera.moveTo(this.position);
 			
@@ -904,5 +907,5 @@ module.exports = (function(){
 		}
 	});
 	return Player;
-}())
+}());
 },{"./car":2,"./head-on":4}]},{},[3])

@@ -11,9 +11,7 @@ module.exports = (function(){
 		mass:200,
 		update: function(delta){
 			steering = this.seek($h.gamestate.player.position);
-			// if(steering.length() > 20){
-			// steering.nor
-			// }
+			//steering.truncate(20);
 			steering = steering.mul(1/this.mass);
 			this.v = this.v.add(steering);
 			this.v.truncate(this.topSpeed);

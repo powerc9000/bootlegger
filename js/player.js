@@ -15,6 +15,7 @@ module.exports = (function(){
 		reverse:1,
 		update: function(delta){
 			var camera = $h.gamestate.camera;
+			var rotationMul;
 			this.speed = this.v.length();
 			if(this.speed > this.topSpeed){
 				this.speed = this.topSpeed;
@@ -26,12 +27,12 @@ module.exports = (function(){
 				if(this.speed === 0){
 					this.reverse *= -1;
 				}
-				this.a = 200
+				this.a = 200;
 				
 			}else if($h.keys.down){
 				if(this.speed === 0){
 					this.reverse *= -1;
-					this.a = -200
+					this.a = -200;
 				}
 				else if(this.reverse !== -1){
 					this.brake();
@@ -40,28 +41,37 @@ module.exports = (function(){
 			}else{
 				this.a = 0;
 			}
+
+			rotationMul = (this.speed === 0 ) ? this.speed : 500/this.speed;
 			if($h.keys.right){
-				this.rotation = this.maxRotation ;
+				this.rotation = this.maxRotation * rotationMul;
 			}
 			else if($h.keys.left){
-				this.rotation = -this.maxRotation ;
+				this.rotation = -this.maxRotation * rotationMul;
 			}else{
 				this.rotation = 0;
 			}
 			if($h.keys.space){
 				this.brake();
 			}
-			
+			if(Math.abs(this.rotation) > this.maxRotation){
+				if(this.rotation > 0){
+					this.rotation = this.maxRotation;
+				}else{
+					this.rotation = -this.maxRotation;
+				}
+				
+			}
 			this.angle += this.rotation * delta/1000;
 			this.speed *= this.reverse;
 			this.speed += this.a * delta/1000;
 			//Friction from the road.
 			if(!this.a){
-				this.speed *= .99;
+				this.speed *= 0.99;
 			}
 			
 			//this.a = this.a.mul(.9)
-			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed)
+			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed);
 			this.position = this.position.add(this.v.mul(delta/1000));
 			camera.moveTo(this.position);
 			
@@ -69,4 +79,4 @@ module.exports = (function(){
 		}
 	});
 	return Player;
-}())
+}());
