@@ -14,7 +14,7 @@ var $h = require("./head-on"),
 	npc;
 player = new Player(200, 200); 
 npc = new NPC(200, 400);
-$h.mousePos = {y:0, x:0}
+$h.mousePos = {y:0, x:0};
 $h.gamestate = {};
 $h.gamestate.camera = camera;
 $h.gamestate.player = player;
@@ -29,14 +29,14 @@ $h.render(function(){
 	}
 	player.render(canvas);
 	npc.render(canvas);
-	canvas.drawRect(20,20, 20, 20, "green")
+	canvas.drawRect(20,20, 20, 20, "green");
 });
 
 $h.update(function(delta){
 	player.update(delta);
 	npc.update(delta);
 });
-$h.run()
+$h.run();
 canvas.canvas.canvas.addEventListener("mousemove", function(e){
 	var bounds = canvas.canvas.canvas.getBoundingClientRect();
 	$h.mousePos = {x:e.pageX - bounds.left, y: e.pageY - bounds.top};

@@ -1,5 +1,6 @@
 var $h = require("./head-on");
 module.exports = (function(){
+	"use strict";
 	function Car(x,y){
 		this.position = $h.Vector(x||0, y||0);
 		return this;
@@ -8,20 +9,19 @@ module.exports = (function(){
 		
 		position: $h.Vector(0,0),
 		angle:0,
-		width:50,
-		height:100,
+		width:5,
+		height:10,
 		speed:0,
 		a:0,
 		maxRotation:2,
 		rotation:0,
-		speed:0,
 		color:"blue",
 		v: $h.Vector(0,0),
 		update: function(time){
-			return this.message;
+			//return this.message;
 		},
 		brake: function(mul){
-			mul = mul || .93;
+			mul = mul || 0.93;
 			this.a = 0;
 			this.speed *= mul;
 		},
@@ -37,6 +37,6 @@ module.exports = (function(){
 		}
 		
 
-	}
+	};
 	return Car;
-}())
+}());

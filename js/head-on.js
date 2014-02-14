@@ -1,9 +1,4 @@
-//	   __  __			    __					 _	
-//	  / / / /__  ____ _____/ /	____  ____	       (_)____
-//   / /_/ / _ \/ __ `/ __  /_____/ __ \/ __ \	  / / ___/
-//  / __  /  __/ /_/ / /_/ /_____/ /_/ / / / /   / (__  ) 
-// /_/ /_/\___/\__,_/\__,_/	     \____/_/ /_(_)_/ /____/  
-//										     /___/		
+
 module.exports = (function(window, undefined){
 	"use strict";
 	var headOn = (function(){
@@ -23,7 +18,7 @@ module.exports = (function(window, undefined){
 					return Math.floor(Math.random() * (max +1 - min)) + min;
 				},
 				randFloat: function(min, max) {
-					return Math.random() * (max - min) + min
+					return Math.random() * (max - min) + min;
 				},
 				events: {
 					events: {},
@@ -84,9 +79,9 @@ module.exports = (function(window, undefined){
 					
 				},
 
-				update: function(cb){this._update = cb},
+				update: function(cb){this._update = cb;},
 
-				render: function(cb){this._render = cb},
+				render: function(cb){this._render = cb;},
 
 				entity: function(values, parent){
 					var i, o, base;
@@ -127,7 +122,9 @@ module.exports = (function(window, undefined){
 						}
 					}
 				},
-				
+				distance: function(obj1, obj2){
+					return Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2));
+				},
 				collides: function(poly1, poly2) {
 					var points1 = this.getPoints(poly1),
 						points2 = this.getPoints(poly2),
@@ -283,24 +280,24 @@ module.exports = (function(window, undefined){
 						var circleDistance = {x:newX, y:newY};
 						var cornerDistance_sq;
 						circleDistance.x = Math.abs(circle.position.x - rect.position.x);
-					    circleDistance.y = Math.abs(circle.position.y - rect.position.y);
+						circleDistance.y = Math.abs(circle.position.y - rect.position.y);
 
-					    if (circleDistance.x > (rect.width/2 + circle.radius)) { return false; }
-					    if (circleDistance.y > (rect.height/2 + circle.radius)) { return false; }
+						if (circleDistance.x > (rect.width/2 + circle.radius)) { return false; }
+						if (circleDistance.y > (rect.height/2 + circle.radius)) { return false; }
 
-					    if (circleDistance.x <= (rect.width/2)) { return true; } 
-					    if (circleDistance.y <= (rect.height/2)) { return true; }
+						if (circleDistance.x <= (rect.width/2)) { return true; } 
+						if (circleDistance.y <= (rect.height/2)) { return true; }
 
-					    cornerDistance_sq = Math.pow(circleDistance.x - rect.width/2,2) +
-					                         Math.pow(circleDistance.y - rect.height/2, 2);
+						cornerDistance_sq = Math.pow(circleDistance.x - rect.width/2,2) +
+											Math.pow(circleDistance.y - rect.height/2, 2);
 
-					    return (cornerDistance_sq <= Math.pow(circle.radius,2));
+						return (cornerDistance_sq <= Math.pow(circle.radius,2));
 					}
 					function pointInCircle(point, circle){
-						Math.pow(point.x - circle.position.x ,2) + Math.pow(point.y - circle.position.y, 2) < Math.pow(circle.radius,2);
+						return Math.pow(point.x - circle.position.x ,2) + Math.pow(point.y - circle.position.y, 2) < Math.pow(circle.radius,2);
 					}
 					function circleCircle(ob1, ob2){
-						square(ob2.position.x - ob1.position.x) + square(ob2.position.y - ob1.position.y) <= square(ob1.radius + ob2.radius)
+						return square(ob2.position.x - ob1.position.x) + square(ob2.position.y - ob1.position.y) <= square(ob1.radius + ob2.radius);
 					}
 				},
 
@@ -376,11 +373,11 @@ module.exports = (function(window, undefined){
 							allCallback && allCallback();
 							that.imagesLoaded = true;
 						}
-					}
+					};
 					imageArray.forEach(function(image){
 						img = new Image();
 						img.src = image.src;
-						img.onload = imgOnload
+						img.onload = imgOnload;
 					
 						that._images[image.name] = img;
 					});
@@ -396,7 +393,7 @@ module.exports = (function(window, undefined){
 				onTick: function(then){
 					var now = Date.now(),
 					modifier = now - then;
-				  	this.trueFps = 1/(modifier/1000);
+					this.trueFps = 1/(modifier/1000);
 					this._ticks+=1;
 					this._update(modifier, this._ticks);
 					this._render(modifier, this._ticks);
@@ -407,7 +404,7 @@ module.exports = (function(window, undefined){
 				timeout: function(cb, time, scope){
 					setTimeout(function(){
 						cb.call(scope);
-					}, time)
+					}, time);
 				},
 
 				interval: function(cb, time, scope){
@@ -448,8 +445,8 @@ module.exports = (function(window, undefined){
 					this.message = message;
 					this.name = "Head-on Exception";
 					this.toString = function(){
-						return this.name + ": " + this.message
-					}
+						return this.name + ": " + this.message;
+					};
 				}
 		};
 
@@ -469,7 +466,7 @@ module.exports = (function(window, undefined){
 				height: canvas.height,
 				camera: camera
 			};
-		}
+		};
 		headOn.canvas.prototype = {
 			canvases: {},
 			stroke: function(stroke){
@@ -578,12 +575,12 @@ module.exports = (function(window, undefined){
 			},
 			clear: function(){
 				var ctx = this.canvas.ctx;
-				ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
+				ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
 			},
 			setCamera: function(cam){
 				this.canvas.camera = cam;
 			}
-		}
+		};
 		headOn.Timer.prototype = {
 			job: function(time, start){
 				var jiff = {
@@ -601,18 +598,18 @@ module.exports = (function(window, undefined){
 					timeLeft: function(){
 						return jiff.remaining;
 					}
-				}
+				};
 			},
 			update: function(time){
 				this.jobs.forEach(function(j){
 					j.remaining -= time;
 				});
 			}
-		}
+		};
 		headOn.Camera.prototype = {
 			zoomIn: function(amt){
 				this.zoomAmt /= amt;
-				this.position = this.center.sub(this.dimensions.mul(this.zoomAmt / 2))
+				this.position = this.center.sub(this.dimensions.mul(this.zoomAmt / 2));
 				return this;
 			},
 			zoomOut: function(amt){
@@ -623,17 +620,17 @@ module.exports = (function(window, undefined){
 			},
 			move: function(vec){
 				this.position = this.position.add(vec);
-				this.center = this.position.add(headOn.Vector(this.width, this.height).mul(.5));
+				this.center = this.position.add(headOn.Vector(this.width, this.height).mul(0.5));
 				return this;
 			},
 			moveTo: function(vec){
-				this.position = vec.sub(this.dimensions.mul(.5).mul(this.zoomAmt));
+				this.position = vec.sub(this.dimensions.mul(0.5).mul(this.zoomAmt));
 				this.center = vec;
 			},
 			unproject: function(vec){
 				return vec.sub(this.position).mul(1/this.zoomAmt);
 			}
-		}
+		};
 		vectorProto = {
 			normalize: function(){
 				var len = this.length();
@@ -645,7 +642,12 @@ module.exports = (function(window, undefined){
 				this.x /= len;
 				this.y /= len;
 			},
-
+			truncate: function(max){
+				var i;
+				i = max / this.length();
+				i = i < 1 ? i : 1;
+				this.mul(i);
+			},
 			dot: function(vec2){
 				return vec2.x * this.x + vec2.y * this.y;
 			},
@@ -665,7 +667,7 @@ module.exports = (function(window, undefined){
 			mul: function(scalar){
 				return headOn.Vector(this.x * scalar, this.y * scalar);
 			}
-		}
+		};
 		function sign(num){
 			if(num < 0){
 				return -1;

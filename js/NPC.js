@@ -6,33 +6,34 @@ module.exports = (function(){
 	}
 	$h.inherit(Car, NPC);
 	$h.extend(NPC.prototype, {
+		topSpeed:1000,
+		maxRotation: 20,
+		mass:200,
 		update: function(delta){
-			this.speed = this.v.length();
-			if(this.angle !== this.angleToPlayer()){
-				console.log("yes");
-				if(this.angle - this.angleToPlayer() < 0){
-					this.rotation = this.maxRotation;
-				}else{
-					this.rotation = -this.maxRotation;
-				}
-				this.angle += this.rotation * delta/1000;
-				console.log(this.rotation);
-			}
-			if(this.speed > $h.gamestate.player.speed){
-				this.brake();
-			}else{
-				this.a = 1000;
-			}
-			this.speed += this.a * delta/1000;
-			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed)
+			steering = this.seek($h.gamestate.player.position);
+			// if(steering.length() > 20){
+			// steering.nor
+			// }
+			steering = steering.mul(1/this.mass);
+			this.v = this.v.add(steering);
+			this.v.truncate(this.topSpeed);
+			this.angle = Math.atan2(this.v.y, this.v.x);
 			this.position = this.position.add(this.v.mul(delta/1000));
 			this.rotation = 0;
 		},
 		angleToPlayer: function(){
-			return $h.gamestate.player.angle;
-			//console.log(angle);
+			var vector = $h.gamestate.player.position.sub(this.position);
+			var angle = Math.atan2(vector.y, vector.x);
+			//angle += Math.PI
 			return angle;
+		},
+		seek: function(position){
+			var desiredV = position.sub(this.position).normalize().mul(this.topSpeed);
+			return desiredV.sub(this.v);
+		},
+		pursuit: function(obj){
+			return seek(obj.position.add(obj.v).mul(3));
 		}
-	})
+	});
 	return NPC;
-}())
+}());

@@ -7,32 +7,33 @@ module.exports = (function(){
 	}
 	$h.inherit(Car, NPC);
 	$h.extend(NPC.prototype, {
+		topSpeed:1000,
+		maxRotation: 20,
+		mass:200,
 		update: function(delta){
-			this.speed = this.v.length();
-			if(this.angle !== this.angleToPlayer()){
-				console.log("yes");
-				if(this.angle - this.angleToPlayer() < 0){
-					this.rotation = this.maxRotation;
-				}else{
-					this.rotation = -this.maxRotation;
-				}
-				this.angle += this.rotation * delta/1000;
-				console.log(this.rotation);
-			}
-			if(this.speed > $h.gamestate.player.speed){
-				this.brake();
-			}else{
-				this.a = 1000;
-			}
-			this.speed += this.a * delta/1000;
-			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed)
+			steering = this.seek($h.gamestate.player.position)
+			// if(steering.length() > 20){
+			// 	steering.nor
+			// }
+			steering = steering.mul(1/this.mass);
+			this.v = this.v.add(steering);
+			this.v.truncate(this.topSpeed);
+			this.angle = Math.atan2(this.v.y, this.v.x);
 			this.position = this.position.add(this.v.mul(delta/1000));
 			this.rotation = 0;
 		},
 		angleToPlayer: function(){
-			return $h.gamestate.player.angle;
-			//console.log(angle);
+			var vector = $h.gamestate.player.position.sub(this.position);
+			var angle = Math.atan2(vector.y, vector.x);
+			//angle += Math.PI
 			return angle;
+		},
+		seek: function(position){
+			var desiredV = position.sub(this.position).normalize().mul(this.topSpeed);
+			return desiredV.sub(this.v);
+		},
+		pursuit: function(obj){
+			return seek(obj.position.add(obj.v).mul(3));
 		}
 	})
 	return NPC;
@@ -40,6 +41,7 @@ module.exports = (function(){
 },{"./car":2,"./head-on.js":4}],2:[function(require,module,exports){
 var $h = require("./head-on");
 module.exports = (function(){
+	"use strict"
 	function Car(x,y){
 		this.position = $h.Vector(x||0, y||0);
 		return this;
@@ -48,17 +50,16 @@ module.exports = (function(){
 		
 		position: $h.Vector(0,0),
 		angle:0,
-		width:50,
-		height:100,
+		width:5,
+		height:10,
 		speed:0,
 		a:0,
 		maxRotation:2,
 		rotation:0,
-		speed:0,
 		color:"blue",
 		v: $h.Vector(0,0),
 		update: function(time){
-			return this.message;
+			//return this.message;
 		},
 		brake: function(mul){
 			mul = mul || .93;
@@ -265,7 +266,9 @@ module.exports = (function(window, undefined){
 						}
 					}
 				},
-				
+				distance: function(obj1, obj2){
+					return Math.sqrt(Math.pow(obj1.position.x - obj2.position.x, 2) + Math.pow(obj1.position.y - obj2.position.y, 2))
+				},
 				collides: function(poly1, poly2) {
 					var points1 = this.getPoints(poly1),
 						points2 = this.getPoints(poly2),
@@ -783,7 +786,12 @@ module.exports = (function(window, undefined){
 				this.x /= len;
 				this.y /= len;
 			},
-
+			truncate: function(max){
+				var i;
+				i = max / this.length();
+				i = i < 1 ? i : 1;
+				this.mul(i);
+			},
 			dot: function(vec2){
 				return vec2.x * this.x + vec2.y * this.y;
 			},
