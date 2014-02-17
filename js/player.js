@@ -10,7 +10,7 @@ module.exports = (function(){
 	
 	$h.extend(Player.prototype, {
 		
-		color:"black",
+		color:"red",
 		topSpeed:1000,
 		reverse:1,
 		update: function(delta){

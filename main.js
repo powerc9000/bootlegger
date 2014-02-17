@@ -9,7 +9,7 @@ module.exports = (function(){
 	$h.extend(NPC.prototype, {
 		topSpeed:1000,
 		maxRotation: 20,
-		mass:200,
+		mass:50,
 		update: function(delta){
 			steering = this.seek($h.gamestate.player.position);
 			//steering.truncate(20);
@@ -20,18 +20,28 @@ module.exports = (function(){
 			this.position = this.position.add(this.v.mul(delta/1000));
 			this.rotation = 0;
 		},
+
 		angleToPlayer: function(){
 			var vector = $h.gamestate.player.position.sub(this.position);
 			var angle = Math.atan2(vector.y, vector.x);
 			//angle += Math.PI
 			return angle;
 		},
+
 		seek: function(position){
-			var desiredV = position.sub(this.position).normalize().mul(this.topSpeed);
-			return desiredV.sub(this.v);
+			var targetV = position.sub(this.position);
+			var distance = targetV.length();
+			targetV = targetV.normalize();
+			if(distance <= 500){
+				targetV = targetV.mul(this.topSpeed * distance/500);
+			}else{
+				targetV = targetV.mul(this.topSpeed);
+			}
+			return targetV.sub(this.v);
 		},
-		pursuit: function(obj){
-			return seek(obj.position.add(obj.v).mul(3));
+
+		pursue: function(obj){
+			return this.seek(obj.position.add(obj.v));
 		}
 	});
 	return NPC;
@@ -48,11 +58,11 @@ module.exports = (function(){
 		
 		position: $h.Vector(0,0),
 		angle:0,
-		width:5,
-		height:10,
+		width:20,
+		height:40,
 		speed:0,
 		a:0,
-		maxRotation:2,
+		maxRotation:1.25,
 		rotation:0,
 		color:"blue",
 		v: $h.Vector(0,0),
@@ -83,6 +93,7 @@ module.exports = (function(){
 var $h = require("./head-on"),
 	Player = require("./player"),
 	NPC = require("./NPC"),
+	init = require("./init"),
 	camera = new $h.Camera(500, 500),
 	keyMap = {
 		37:"left",
@@ -94,6 +105,7 @@ var $h = require("./head-on"),
 	canvas,
 	player,
 	npc;
+init();
 player = new Player(200, 200); 
 npc = new NPC(200, 400);
 $h.mousePos = {y:0, x:0};
@@ -107,7 +119,7 @@ $h.keys = {};
 $h.render(function(){
 	canvas.clear();
 	for(var i=0; i<200; i++){
-		canvas.drawRect(50, 50, 200+i, i*49, "grey");
+		canvas.drawImage($h.images("road"), 200, i*128);
 	}
 	player.render(canvas);
 	npc.render(canvas);
@@ -134,7 +146,7 @@ console.log(player);
 console.log($h);
 
 
-},{"./NPC":1,"./head-on":4,"./player":5}],4:[function(require,module,exports){
+},{"./NPC":1,"./head-on":4,"./init":5,"./player":6}],4:[function(require,module,exports){
 
 module.exports = (function(window, undefined){
 	"use strict";
@@ -504,6 +516,7 @@ module.exports = (function(window, undefined){
 					}
 					loaded = 0;
 					imgOnload = function(){
+						console.log("heyo");
 						loaded += 1;
 						imgCallback && imgCallback(image.name);
 						if(loaded === total){
@@ -656,9 +669,9 @@ module.exports = (function(window, undefined){
 				return this;
 			},
 			drawImage: function(image,x,y){
-				var ctx = this.canvas.ctx;
+				var ctx = this.canvas.ctx, camera = this.canvas.camera;
 				try{
-					ctx.drawImage(image,x,y);	
+					ctx.drawImage(image,(x - camera.position.x)/camera.zoomAmt , (y - camera.position.y)/camera.zoomAmt , image.width / camera.zoomAmt, image.height / camera.zoomAmt);	
 				}
 				catch(e){
 					console.log(image);
@@ -826,6 +839,14 @@ module.exports = (function(window, undefined){
 	return headOn;
 }(window));
 },{}],5:[function(require,module,exports){
+var $h = require("./head-on");
+module.exports  = (function(){
+	return function(){
+		console.log($h);
+		$h.loadImages([{name:"road", src:"img/road.png"}]);
+	};
+}());
+},{"./head-on":4}],6:[function(require,module,exports){
 var Car = require("./car");
 var $h = require("./head-on");
 module.exports = (function(){
@@ -838,7 +859,7 @@ module.exports = (function(){
 	
 	$h.extend(Player.prototype, {
 		
-		color:"black",
+		color:"red",
 		topSpeed:1000,
 		reverse:1,
 		update: function(delta){

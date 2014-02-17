@@ -367,6 +367,7 @@ module.exports = (function(window, undefined){
 					}
 					loaded = 0;
 					imgOnload = function(){
+						console.log("heyo");
 						loaded += 1;
 						imgCallback && imgCallback(image.name);
 						if(loaded === total){
@@ -519,9 +520,9 @@ module.exports = (function(window, undefined){
 				return this;
 			},
 			drawImage: function(image,x,y){
-				var ctx = this.canvas.ctx;
+				var ctx = this.canvas.ctx, camera = this.canvas.camera;
 				try{
-					ctx.drawImage(image,x,y);	
+					ctx.drawImage(image,(x - camera.position.x)/camera.zoomAmt , (y - camera.position.y)/camera.zoomAmt , image.width / camera.zoomAmt, image.height / camera.zoomAmt);	
 				}
 				catch(e){
 					console.log(image);

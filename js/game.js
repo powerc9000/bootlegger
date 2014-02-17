@@ -1,6 +1,7 @@
 var $h = require("./head-on"),
 	Player = require("./player"),
 	NPC = require("./NPC"),
+	init = require("./init"),
 	camera = new $h.Camera(500, 500),
 	keyMap = {
 		37:"left",
@@ -12,6 +13,7 @@ var $h = require("./head-on"),
 	canvas,
 	player,
 	npc;
+init();
 player = new Player(200, 200); 
 npc = new NPC(200, 400);
 $h.mousePos = {y:0, x:0};
@@ -25,7 +27,7 @@ $h.keys = {};
 $h.render(function(){
 	canvas.clear();
 	for(var i=0; i<200; i++){
-		canvas.drawRect(50, 50, 200+i, i*49, "grey");
+		canvas.drawImage($h.images("road"), 200, i*128);
 	}
 	player.render(canvas);
 	npc.render(canvas);

@@ -8,7 +8,7 @@ module.exports = (function(){
 	$h.extend(NPC.prototype, {
 		topSpeed:1000,
 		maxRotation: 20,
-		mass:200,
+		mass:50,
 		update: function(delta){
 			steering = this.seek($h.gamestate.player.position);
 			//steering.truncate(20);
@@ -19,18 +19,28 @@ module.exports = (function(){
 			this.position = this.position.add(this.v.mul(delta/1000));
 			this.rotation = 0;
 		},
+
 		angleToPlayer: function(){
 			var vector = $h.gamestate.player.position.sub(this.position);
 			var angle = Math.atan2(vector.y, vector.x);
 			//angle += Math.PI
 			return angle;
 		},
+
 		seek: function(position){
-			var desiredV = position.sub(this.position).normalize().mul(this.topSpeed);
-			return desiredV.sub(this.v);
+			var targetV = position.sub(this.position);
+			var distance = targetV.length();
+			targetV = targetV.normalize();
+			if(distance <= 500){
+				targetV = targetV.mul(this.topSpeed * distance/500);
+			}else{
+				targetV = targetV.mul(this.topSpeed);
+			}
+			return targetV.sub(this.v);
 		},
-		pursuit: function(obj){
-			return seek(obj.position.add(obj.v).mul(3));
+
+		pursue: function(obj){
+			return this.seek(obj.position.add(obj.v));
 		}
 	});
 	return NPC;
