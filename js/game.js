@@ -16,7 +16,7 @@ var $h = require("./head-on"),
 	player,
 	npc;
 init();
-player = new Player(200, 200); 
+player = new Player(203, 200); 
 npc = new NPC(200, 400);
 $h.mousePos = {y:0, x:0};
 $h.gamestate = {};
@@ -30,10 +30,11 @@ canvas.append("body");
 mask.append("body");
 $h.keys = {};
 console.log(mask);
-mask.drawRect( 500, 500,0,0, "rgba(0,0,0,0.9)");
+mask.drawRect( 500, 500,0,0, "rgba(0,0,0,0)");
 mask.canvas.ctx.globalCompositeOperation = 'destination-out';
 $h.render(function(){
 	canvas.clear();
+
 	mask.drawRect(50,50,250,250,"white");
 
 

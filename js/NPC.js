@@ -10,7 +10,8 @@ module.exports = (function(){
 		maxRotation: 20,
 		mass:50,
 		update: function(delta){
-			steering = this.seek($h.gamestate.player.position);
+			var r;
+			steering = this.seek($h.Vector(200, 10000));
 			//steering.truncate(20);
 			steering = steering.mul(1/this.mass);
 			this.v = this.v.add(steering);
@@ -18,6 +19,13 @@ module.exports = (function(){
 			this.angle = Math.atan2(this.v.y, this.v.x);
 			this.position = this.position.add(this.v.mul(delta/1000));
 			this.rotation = 0;
+			if(r = $h.collides(this, $h.gamestate.player)){
+				console.log("collide");
+				console.log(this.v.length(), $h.gamestate.player.v);
+				$h.gamestate.player.v = this.v;
+				this.v = this.v.mul(0.93);
+				this.position = this.position.sub($h.Vector(r.normal.x, r.normal.y).mul(r.overlap));
+			}
 		},
 
 		angleToPlayer: function(){

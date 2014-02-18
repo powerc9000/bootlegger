@@ -9,8 +9,8 @@ module.exports = (function(){
 		
 		position: $h.Vector(0,0),
 		angle:0,
-		width:20,
-		height:40,
+		width:40,
+		height:20,
 		speed:0,
 		a:0,
 		maxRotation:1.25,
@@ -31,9 +31,9 @@ module.exports = (function(){
 				this.position.x, 
 				this.position.y, 
 				this.color, {}, 
-				this.angle - Math.PI/2, 
-				{x:this.width/2, y:10}
+				this.angle
 				);
+			canvas.drawRect(this.width,this.height, this.position.x, this.position.y, "transparent",{width:1, color:"white"}, this.angle);
 		}
 		
 

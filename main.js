@@ -11,7 +11,8 @@ module.exports = (function(){
 		maxRotation: 20,
 		mass:50,
 		update: function(delta){
-			steering = this.seek($h.gamestate.player.position);
+			var r;
+			steering = this.seek($h.Vector(200, 10000));
 			//steering.truncate(20);
 			steering = steering.mul(1/this.mass);
 			this.v = this.v.add(steering);
@@ -19,6 +20,13 @@ module.exports = (function(){
 			this.angle = Math.atan2(this.v.y, this.v.x);
 			this.position = this.position.add(this.v.mul(delta/1000));
 			this.rotation = 0;
+			if(r = $h.collides(this, $h.gamestate.player)){
+				console.log("collide");
+				console.log(this.v.length(), $h.gamestate.player.v);
+				$h.gamestate.player.v = this.v;
+				this.v = this.v.mul(0.93);
+				this.position = this.position.sub($h.Vector(r.normal.x, r.normal.y).mul(r.overlap));
+			}
 		},
 
 		angleToPlayer: function(){
@@ -58,8 +66,8 @@ module.exports = (function(){
 		
 		position: $h.Vector(0,0),
 		angle:0,
-		width:20,
-		height:40,
+		width:40,
+		height:20,
 		speed:0,
 		a:0,
 		maxRotation:1.25,
@@ -80,9 +88,9 @@ module.exports = (function(){
 				this.position.x, 
 				this.position.y, 
 				this.color, {}, 
-				this.angle - Math.PI/2, 
-				{x:this.width/2, y:10}
+				this.angle
 				);
+			canvas.drawRect(this.width,this.height, this.position.x, this.position.y, "transparent",{width:1, color:"white"}, this.angle);
 		}
 		
 
@@ -108,7 +116,7 @@ var $h = require("./head-on"),
 	player,
 	npc;
 init();
-player = new Player(200, 200); 
+player = new Player(203, 200); 
 npc = new NPC(200, 400);
 $h.mousePos = {y:0, x:0};
 $h.gamestate = {};
@@ -122,10 +130,11 @@ canvas.append("body");
 mask.append("body");
 $h.keys = {};
 console.log(mask);
-mask.drawRect( 500, 500,0,0, "rgba(0,0,0,0.9)");
+mask.drawRect( 500, 500,0,0, "rgba(0,0,0,0)");
 mask.canvas.ctx.globalCompositeOperation = 'destination-out';
 $h.render(function(){
 	canvas.clear();
+
 	mask.drawRect(50,50,250,250,"white");
 
 
@@ -797,6 +806,7 @@ module.exports = (function(window, undefined){
 		vectorProto = {
 			normalize: function(){
 				var len = this.length();
+				if(len === 0) return headOn.Vector(0,0);
 				return headOn.Vector(this.x/len, this.y/len);
 			},
 
@@ -863,6 +873,7 @@ module.exports  = (function(){
 var Car = require("./car");
 var $h = require("./head-on");
 module.exports = (function(){
+	"use strict";
 	//console.log(headOn)
 	function Player(x,y){
 		Car.call(this, x,y);
@@ -876,6 +887,7 @@ module.exports = (function(){
 		topSpeed:1000,
 		reverse:1,
 		update: function(delta){
+			var r;
 			var camera = $h.gamestate.camera;
 			var rotationMul;
 			this.speed = this.v.length();
@@ -931,10 +943,16 @@ module.exports = (function(){
 			if(!this.a){
 				this.speed *= 0.99;
 			}
-			
+			if(r = $h.collides(this, {width:1, height:128*200, angle:0, position:$h.Vector(200,0)} )){
+				console.log(this.v.normalize().y);
+				this.position = this.position.sub($h.Vector(r.normal.x, r.normal.y).mul(r.overlap));
+				this.speed *= 0.95;
+				this.angle-=2*delta/1000 *this.v.normalize().y;
+			}
 			//this.a = this.a.mul(.9)
 			this.v = $h.Vector(Math.cos(this.angle), Math.sin(this.angle)).mul(this.speed);
 			this.position = this.position.add(this.v.mul(delta/1000));
+
 			camera.moveTo(this.position);
 			
 			//console.log(this.speed, this.a);
